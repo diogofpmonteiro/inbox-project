@@ -5,7 +5,7 @@ const Web3 = require("web3");
 // Creates instance of web3 and tells it to connect to the provider (ganache, in this case)
 const web3 = new Web3(ganache.provider());
 
-const { interface, bytecode } = require("../compile");
+const { abi, evm } = require("../compile");
 
 let accounts;
 let inbox;
@@ -16,10 +16,10 @@ beforeEach(async () => {
     accounts = await web3.eth.getAccounts();
     // console.log(accounts);
 
-    // ! contract is a constructor function, first argument is our ABI, parsed to JS object from JSON to be deployed and sent
-    inbox = await new web3.eth.Contract(JSON.parse(interface))
+    // ! contract is a constructor function, first argument is our ABI or interface
+    inbox = await new web3.eth.Contract(abi)
       // ! deploy new contract with data property and arguments (argument that starts the Inbox function on the .sol file)
-      .deploy({ data: bytecode, arguments: ["Hi there!"] })
+      .deploy({ data: evm.bytecode.object, arguments: ["Hi there!"] })
       // account that is deploying the contract and gas limit
       .send({ from: accounts[0], gas: "1000000" });
   } catch (error) {
@@ -54,6 +54,6 @@ describe("Inbox", () => {
     assert.strictEqual(message, "bye");
 
     // we don't need this transaction object, I just included it to see what we receive from a transaction
-    console.log(transactionObject);
+    // console.log(transactionObject);
   });
 });
